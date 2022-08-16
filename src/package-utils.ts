@@ -1,6 +1,6 @@
+import {YarnPackageDatabase} from "./parser/yarn-lock";
 import {PackageDatabase} from "./types";
 import {getLockFileName, getYarnPackages} from "./yarn-utils";
-import {YarnPackageDatabase} from "./parser/yarn-lock";
 
 const toPackageDatabase = (yarnPackages: YarnPackageDatabase): PackageDatabase => {
   return Object.entries(yarnPackages).reduce((packages, [name, packageDetails]) => {
@@ -9,7 +9,9 @@ const toPackageDatabase = (yarnPackages: YarnPackageDatabase): PackageDatabase =
         dependencies: new Set<string>()
       });
     }
+
     const deps = packages.get(name)!.dependencies;
+
     Object.keys(packageDetails.dependencies || {}).forEach(dep =>
       deps.add(dep)
     );
@@ -21,5 +23,6 @@ const toPackageDatabase = (yarnPackages: YarnPackageDatabase): PackageDatabase =
 export const getPackageDatabase = () => {
   const lockFileName = getLockFileName();
   const packages = getYarnPackages(lockFileName);
+
   return toPackageDatabase(packages);
 }

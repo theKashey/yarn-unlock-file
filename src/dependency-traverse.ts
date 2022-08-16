@@ -9,8 +9,11 @@ const wipePass = (database: PackageDatabase, keep: Set<string>, lock: Set<string
     if (lock.has(name)) {
       continue;
     }
+
     keep.delete(name);
+
     const ent = database.get(name);
+
     if (ent) {
       wipePass(database, keep, lock, ent.dependencies)
     }
@@ -23,6 +26,7 @@ export const reduceDeps = async (database: PackageDatabase, allPackagesGetter: P
 
   // lock versions
   const lockedSet = new Set<string>();
+
   for (const packageName of allPackages) {
     // a package to be kept
     if (!rootPackages.has(packageName)) {

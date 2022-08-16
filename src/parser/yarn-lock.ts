@@ -1,19 +1,22 @@
+import * as lockfile from "@yarnpkg/lockfile";
 import {load, dump} from "js-yaml";
 
 export type YarnPackageDatabase = Record<string, { dependencies: Record<string, unknown> }>;
 
-import * as lockfile from "@yarnpkg/lockfile";
 import {extractPackageName} from "./utils";
 
 export const yarnLockToDatabase = (data: string): YarnPackageDatabase => {
   if (data.includes('yarn lockfile v1')) {
     // yarn1 format
     const objects = lockfile.parse(data).object;
+
     return Object.entries(objects).reduce((acc, [name, {dependencies}]: any) => {
       acc[extractPackageName(name)] = {dependencies};
+
       return acc;
     }, {} as YarnPackageDatabase);
   }
+
   // it's lock v2 yaml
   const lockContent: any = load(data);
 
@@ -21,6 +24,7 @@ export const yarnLockToDatabase = (data: string): YarnPackageDatabase => {
     if (name !== '__metadata') {
       acc[extractPackageName(name)] = {dependencies};
     }
+
     return acc;
   }, {} as YarnPackageDatabase);
 }
@@ -32,8 +36,10 @@ export const updateLock = (data: string, keepThose: Set<string>): string => {
   if (data.includes('yarn lockfile v1')) {
     // yarn1 format
     const objects = lockfile.parse(data).object;
+
     return lockfile.stringify(Object.fromEntries(Object.entries(objects).filter(([name]) => keepThose.has(extractPackageName(name)))))
   }
+
   // it's lock v2 yaml
   const lockContent: any = load(data);
 

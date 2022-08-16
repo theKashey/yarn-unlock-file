@@ -1,21 +1,23 @@
 #!/usr/bin/env node
 
-import sade from "sade";
 import * as  minimatch from "minimatch";
+import sade from "sade";
+
+import {runner} from "./cli-runner";
+import {reduceDeps} from "./dependency-traverse";
 import {
   getAllDirectDependencies, getDependenciesFor,
   getDirectDependencies,
   getDirectDevDependencies,
 } from "./get-dependencies";
-import {reduceDeps} from "./dependency-traverse";
 import {getPackageLevels} from "./levels";
 import {getPackageDatabase} from "./package-utils";
-import {runner} from "./cli-runner";
 
 const program = sade("yarn-unlock-file", false);
 
 program
   .version(require("../package.json").version);
+
 program
   .option("-o, --only <glob>", "updates ONLY dependencies matching mask")
   .example('all # unlocks indirect dependencies of dependencies')
@@ -44,6 +46,7 @@ program
   .action((glob, options) => runner('direct', (database) => {
         const topDeps = Array.from(database.keys()).filter(minimatch.filter(glob));
         console.log('matched:', topDeps.join(', '));
+
         return (
           reduceDeps(
             database,
@@ -59,6 +62,7 @@ program
   .option('-l, --level', 'specify level to report')
   .action(async (mode, {level}) => {
     const levels = await getPackageLevels(getPackageDatabase(), getDependenciesFor(mode))
+
     if (level) {
       console.log(levels[level + 1])
     } else {

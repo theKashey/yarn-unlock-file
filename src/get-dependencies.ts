@@ -1,7 +1,9 @@
+import {join} from 'path';
+
 import {findRootSync} from "@manypkg/find-root";
 import {getPackages, Package} from "@manypkg/get-packages";
-import {join} from 'path';
 import memoizeOne from "memoize-one";
+
 import {Dependencies} from "./types";
 
 export const getRoot = (): string => {
