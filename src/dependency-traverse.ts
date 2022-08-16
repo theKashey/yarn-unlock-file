@@ -17,7 +17,7 @@ const wipePass = (database: PackageDatabase, keep: Set<string>, lock: Set<string
   }
 }
 
-export const reduceDeps = async (database: PackageDatabase, allPackagesGetter: Promise<Dependencies>, rootPackagesGetter: Promise<Dependencies>): Promise<Dependencies> => {
+export const reduceDeps = async (database: PackageDatabase, allPackagesGetter: Promise<Dependencies> | Dependencies, rootPackagesGetter: Promise<Dependencies> | Dependencies): Promise<Dependencies> => {
   const allPackages = await allPackagesGetter;
   const rootPackages = await rootPackagesGetter;
 
