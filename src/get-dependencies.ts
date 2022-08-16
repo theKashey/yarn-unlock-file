@@ -49,14 +49,6 @@ export const getAllDirectDependencies = async (): Promise<Dependencies> => (
   ])
 )
 
-
-export const extractPackageName = (packageGroupName: string): string => {
-  // format is "@atlassian/node-asap@npm:^0.12.4":
-  const versionSeparator = packageGroupName.indexOf('@', 1);
-
-  return packageGroupName.substring(0, versionSeparator);
-};
-
 export const getDependenciesFor = (mode: 'all' | 'direct' | 'dev'): Promise<Dependencies> => {
   switch (mode) {
     case 'all':

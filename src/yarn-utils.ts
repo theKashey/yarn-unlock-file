@@ -1,23 +1,27 @@
 import {join} from "path";
-import {extractPackageName, getRoot} from "./get-dependencies";
-import * as lockfile from "@yarnpkg/lockfile";
+import {getRoot} from "./get-dependencies";
+
 import fs from "fs";
+import {updateLock, yarnLockToDatabase, YarnPackageDatabase} from "./parser/yarn-lock";
+import {extractPackageName} from "./parser/utils";
 
 export const getLockFileName = () => join(getRoot(), 'yarn.lock');
 
-export type YarnPackageDatabase = Array<[string, any]>;
+
+
+const readLockFile = (lockFileName:string):string => fs.readFileSync(lockFileName, 'utf-8');
 
 export const getYarnPackages = (lockFileName: string): YarnPackageDatabase => {
-  const objects = lockfile.parse(fs.readFileSync(lockFileName, 'utf-8')).object;
-  return Object.entries(objects);
+  return yarnLockToDatabase(readLockFile(lockFileName));
 }
 
 export function processLock(filter: (dep: string) => boolean) {
   const lockFileName = getLockFileName();
-  const packages = getYarnPackages(lockFileName);
+  const content = readLockFile(lockFileName);
+  const packages = yarnLockToDatabase(lockFileName);
 
   const unlocked = new Set<string>();
-  const renewedPackages = Object.fromEntries(packages.filter(([dep]) => {
+  const renewedPackages = Object.keys(packages).filter(([dep]) => {
     const name = extractPackageName(dep);
     if (filter(name)) {
       return true;
@@ -25,9 +29,9 @@ export function processLock(filter: (dep: string) => boolean) {
     unlocked.add(name);
 
     return false;
-  }));
+  });
   console.log('unlocking', Array.from(unlocked).join(', '));
 
-  const newLockString = lockfile.stringify(renewedPackages);
+  const newLockString = updateLock(content, new Set(renewedPackages));
   fs.writeFileSync(lockFileName, newLockString);
 }

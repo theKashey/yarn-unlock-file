@@ -1,16 +1,15 @@
 import {PackageDatabase} from "./types";
-import {extractPackageName} from "./get-dependencies";
-import {getLockFileName, getYarnPackages, YarnPackageDatabase} from "./yarn-utils";
+import {getLockFileName, getYarnPackages} from "./yarn-utils";
+import {YarnPackageDatabase} from "./parser/yarn-lock";
 
 const toPackageDatabase = (yarnPackages: YarnPackageDatabase): PackageDatabase => {
-  return yarnPackages.reduce((packages, [name, packageDetails]) => {
-    const shortName = extractPackageName(name);
-    if (!packages.has(shortName)) {
-      packages.set(shortName, {
+  return Object.entries(yarnPackages).reduce((packages, [name, packageDetails]) => {
+    if (!packages.has(name)) {
+      packages.set(name, {
         dependencies: new Set<string>()
       });
     }
-    const deps = packages.get(shortName)!.dependencies;
+    const deps = packages.get(name)!.dependencies;
     Object.keys(packageDetails.dependencies || {}).forEach(dep =>
       deps.add(dep)
     );
