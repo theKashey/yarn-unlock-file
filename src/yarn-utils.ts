@@ -1,18 +1,18 @@
-import fs from "fs";
-import {join} from "path";
+import fs from 'fs';
+import { join } from 'path';
 
-import {getRoot} from "./get-dependencies";
+import { getRoot } from './get-dependencies';
 
-import {extractPackageName} from "./parser/utils";
-import {updateLock, yarnLockToDatabase, YarnPackageDatabase} from "./parser/yarn-lock";
+import { extractPackageName } from './parser/utils';
+import { updateLock, yarnLockToDatabase, YarnPackageDatabase } from './parser/yarn-lock';
 
-export const getLockFileName = ():string => join(getRoot(), 'yarn.lock');
+export const getLockFileName = (): string => join(getRoot(), 'yarn.lock');
 
-const readLockFile = (lockFileName:string):string => fs.readFileSync(lockFileName, 'utf-8');
+const readLockFile = (lockFileName: string): string => fs.readFileSync(lockFileName, 'utf-8');
 
 export const getYarnPackages = (lockFileName: string): YarnPackageDatabase => {
   return yarnLockToDatabase(readLockFile(lockFileName));
-}
+};
 
 export function processLock(filter: (dep: string) => boolean) {
   const lockFileName = getLockFileName();
@@ -20,7 +20,7 @@ export function processLock(filter: (dep: string) => boolean) {
   const packages = yarnLockToDatabase(lockFileName);
 
   const unlocked = new Set<string>();
-  const renewedPackages = Object.keys(packages).filter(([dep]) => {
+  const renewedPackages = Object.keys(packages).filter((dep) => {
     const name = extractPackageName(dep);
 
     if (filter(name)) {
