@@ -17,7 +17,7 @@ __metadata:
   checksum: 5759df3715f0291cbf97099a9bb7202201a1a267e232ee1505418c768b9ae7281cd550b1da563a12808a06529eb1298744a6cabde21ac354fc8450044c7f2213
   languageName: node
   linkType: hard
-  
+
 "@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.10.0, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.12.0, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.14.0, @babel/runtime@npm:^7.14.8, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
   version: 7.16.5
   resolution: "@babel/runtime@npm:7.16.5"
@@ -25,7 +25,7 @@ __metadata:
     regenerator-runtime: ^0.13.4
   checksum: b96e67280efe581c6147b4fe984dfe08a8fbea048934a092f3cbf4dcf61725f6b221cb0c879b6e6e98671f83a104c9e8cfbd24c683e5ebcc886a731aa8984ad0
   languageName: node
-  linkType: hard  
+  linkType: hard
 `;
 
   it('parses it', () => {
@@ -54,6 +54,7 @@ __metadata:
       __metadata:
         version: 5
         cacheKey: 8
+
       \\"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.10.0, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.12.0, @babel/runtime@npm:^7.12.1, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.13.10, @babel/runtime@npm:^7.14.0, @babel/runtime@npm:^7.14.8, @babel/runtime@npm:^7.16.3, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2\\":
         version: 7.16.5
         resolution: \\"@babel/runtime@npm:7.16.5\\"
@@ -64,5 +65,9 @@ __metadata:
         linkType: hard
       "
     `);
+  });
+
+  it('persist it', () => {
+    expect(updateLock(lockFile, new Set(Object.keys(yarnLockToDatabase(lockFile))))).toBe(lockFile);
   });
 });

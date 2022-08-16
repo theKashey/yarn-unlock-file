@@ -1,8 +1,8 @@
-import {Dependencies, PackageDatabase} from "./types";
+import { Dependencies, PackageDatabase } from './types';
 
 const pushSet = (set: Set<string>, ...names: string[]): void => {
-  names.forEach(name => set.add(name));
-}
+  names.forEach((name) => set.add(name));
+};
 
 const wipePass = (database: PackageDatabase, keep: Set<string>, lock: Set<string>, names: Set<string>) => {
   for (const name of names) {
@@ -15,12 +15,16 @@ const wipePass = (database: PackageDatabase, keep: Set<string>, lock: Set<string
     const ent = database.get(name);
 
     if (ent) {
-      wipePass(database, keep, lock, ent.dependencies)
+      wipePass(database, keep, lock, ent.dependencies);
     }
   }
-}
+};
 
-export const reduceDeps = async (database: PackageDatabase, allPackagesGetter: Promise<Dependencies> | Dependencies, rootPackagesGetter: Promise<Dependencies> | Dependencies): Promise<Dependencies> => {
+export const reduceDeps = async (
+  database: PackageDatabase,
+  allPackagesGetter: Promise<Dependencies> | Dependencies,
+  rootPackagesGetter: Promise<Dependencies> | Dependencies
+): Promise<Dependencies> => {
   const allPackages = await allPackagesGetter;
   const rootPackages = await rootPackagesGetter;
 
@@ -42,6 +46,5 @@ export const reduceDeps = async (database: PackageDatabase, allPackagesGetter: P
   const keepThose = new Set(database.keys());
   wipePass(database, keepThose, lockedSet, rootPackages);
 
-
   return keepThose;
-}
+};
