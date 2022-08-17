@@ -34,7 +34,8 @@ const wipePass = (database: PackageDatabase, keep: Set<string>, lock: Set<string
 export const reduceDependencies = async (
   database: PackageDatabase,
   allPackagesGetter: Promise<Dependencies> | Dependencies,
-  rootPackagesGetter: Promise<Dependencies> | Dependencies
+  rootPackagesGetter: Promise<Dependencies> | Dependencies,
+  keepOriginals?: boolean
 ): Promise<Dependencies> => {
   const allPackages = await allPackagesGetter;
   const rootPackages = await rootPackagesGetter;
@@ -44,7 +45,7 @@ export const reduceDependencies = async (
 
   for (const packageName of allPackages) {
     // a package to be kept
-    if (!rootPackages.has(packageName)) {
+    if (!rootPackages.has(packageName) || keepOriginals) {
       pushSet(lockedSet, packageName);
       // also keeping it's deps? why so?
       //, ...database.get(packageName)?.dependencies || [])

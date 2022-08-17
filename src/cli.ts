@@ -53,6 +53,7 @@ program
 
 program
   .command('matching <glob>', 'unlock dependencies from a parent matching given glob')
+  .option('--keep [mode]', 'keep [all, dev, direct] dependencies', 'all')
   .example('matching react # unlocks indirect dependencies react')
   .example('matching react* # unlocks indirect dependencies of any package starting from react*')
   .action((glob, options) =>
@@ -62,7 +63,7 @@ program
         const topDeps = Array.from(database.keys()).filter(minimatch.filter(glob));
         console.log('matched:', topDeps.join(', '));
 
-        return reduceDependencies(database, getAllDirectDependencies(), new Set(topDeps));
+        return reduceDependencies(database, getDependenciesFor(options.keep), new Set(topDeps), true);
       },
       options
     )
