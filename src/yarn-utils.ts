@@ -17,12 +17,10 @@ export const getYarnPackages = (lockFileName: string): YarnPackageDatabase => {
 export function processLock(filter: (dep: string) => boolean) {
   const lockFileName = getLockFileName();
   const content = readLockFile(lockFileName);
-  const packages = yarnLockToDatabase(lockFileName);
+  const packages = yarnLockToDatabase(content);
 
   const unlocked = new Set<string>();
-  const renewedPackages = Object.keys(packages).filter((dep) => {
-    const name = extractPackageName(dep);
-
+  const renewedPackages = Object.keys(packages).filter((name) => {
     if (filter(name)) {
       return true;
     }
@@ -31,7 +29,8 @@ export function processLock(filter: (dep: string) => boolean) {
 
     return false;
   });
-  console.log('unlocking', unlocked.size ? Array.from(unlocked).join(', ') : 'no packages');
+  console.log(`keeping ${renewedPackages.length} packages`);
+  console.log(`unlocking ${unlocked.size} packages`);
 
   const newLockString = updateLock(content, new Set(renewedPackages));
   fs.writeFileSync(lockFileName, newLockString);
