@@ -23,6 +23,7 @@
     "compile": "tsc",
     "set-permissions": "chmod +x ./dist/cli.js",
     "build": "rm -rf ./dist && yarn compile && yarn set-permissions",
+    "test-run:all": "node ./dist/cli.js all",
     "test-run:levels": "node ./dist/cli.js levels all",
     "test-run:matches": "node ./dist/cli.js matching \"dom-*\"",
     "test": "jest",

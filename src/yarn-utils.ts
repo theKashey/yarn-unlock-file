@@ -3,7 +3,6 @@ import { join } from 'path';
 
 import { getRoot } from './get-dependencies';
 
-import { extractPackageName } from './parser/utils';
 import { updateLock, yarnLockToDatabase, YarnPackageDatabase } from './parser/yarn-lock';
 
 export const getLockFileName = (): string => join(getRoot(), 'yarn.lock');
@@ -20,15 +19,17 @@ export function processLock(filter: (dep: string) => boolean) {
   const packages = yarnLockToDatabase(content);
 
   const unlocked = new Set<string>();
-  const renewedPackages = Object.keys(packages).filter((name) => {
-    if (filter(name)) {
-      return true;
-    }
+  const renewedPackages = packages
+    .filter(([name]) => {
+      if (filter(name)) {
+        return true;
+      }
 
-    unlocked.add(name);
+      unlocked.add(name);
 
-    return false;
-  });
+      return false;
+    })
+    .map(([name]) => name);
   console.log(`keeping ${renewedPackages.length} packages`);
   console.log(`unlocking ${unlocked.size} packages`);
 

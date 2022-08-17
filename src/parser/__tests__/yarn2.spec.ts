@@ -68,6 +68,6 @@ __metadata:
   });
 
   it('persist it', () => {
-    expect(updateLock(lockFile, new Set(Object.keys(yarnLockToDatabase(lockFile))))).toBe(lockFile);
+    expect(updateLock(lockFile, new Set(yarnLockToDatabase(lockFile).map(([name]) => name)))).toBe(lockFile);
   });
 });
