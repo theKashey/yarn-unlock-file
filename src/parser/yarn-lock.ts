@@ -1,7 +1,9 @@
 import * as lockfile from '@yarnpkg/lockfile';
 import { load, dump } from 'js-yaml';
 
-export type YarnPackageDatabase = Array<[name: string, details: { dependencies: Record<string, unknown> }]>;
+export type YarnPackageDatabase = Array<
+  [name: string, details: { group: string; dependencies: Record<string, unknown> }]
+>;
 
 import { extractPackageName } from './utils';
 
@@ -10,8 +12,9 @@ export const yarnLockToDatabase = (data: string): YarnPackageDatabase => {
     // yarn1 format
     const objects = lockfile.parse(data).object;
 
-    return Object.entries(objects).reduce((acc: YarnPackageDatabase, [name, { dependencies }]: any) => {
-      acc.push([extractPackageName(name), { dependencies }]);
+    return Object.entries(objects).reduce((acc: YarnPackageDatabase, [name, { version, dependencies }]: any) => {
+      const shortName = extractPackageName(name);
+      acc.push([shortName, { group: `${shortName}@${version}`, dependencies }]);
 
       return acc;
     }, []);
@@ -22,7 +25,7 @@ export const yarnLockToDatabase = (data: string): YarnPackageDatabase => {
 
   return Object.entries(lockContent).reduce((acc: YarnPackageDatabase, [name, { dependencies }]: any) => {
     if (name !== '__metadata') {
-      acc.push([extractPackageName(name), { dependencies }]);
+      acc.push([extractPackageName(name), { group: name, dependencies }]);
     }
 
     return acc;

@@ -6,7 +6,7 @@ const pushSet = (set: Set<string>, ...names: string[]): void => {
 
 const wipePass = (database: PackageDatabase, keep: Set<string>, lock: Set<string>, names: Set<string>) => {
   for (const name of names) {
-    if (lock.has(name)) {
+    if (lock.has(name) || !keep.has(name)) {
       continue;
     }
 
@@ -20,7 +20,18 @@ const wipePass = (database: PackageDatabase, keep: Set<string>, lock: Set<string
   }
 };
 
-export const reduceDeps = async (
+/**
+ * reduces dependencies to include packages from database not being used for rootPackagesGetter
+ * @param database
+ * @param allPackagesGetter
+ * @param rootPackagesGetter
+ * @example
+ * generates a list of packages without dev dependencies
+ * ```ts
+ * reduceDependencies(getPackageDatabase(), getDependenciesFor('all'), getDependenciesFor('dev'))
+ * ```
+ */
+export const reduceDependencies = async (
   database: PackageDatabase,
   allPackagesGetter: Promise<Dependencies> | Dependencies,
   rootPackagesGetter: Promise<Dependencies> | Dependencies
