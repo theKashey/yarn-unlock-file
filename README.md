@@ -79,13 +79,15 @@ npx yarn-unlock-file levels 1
 ## prints third-level dependencies 
 npx yarn-unlock-file levels 3
 ```
+> 💡 Would it be nice to address only specific level of dependencies for unlocking?
 
 # API 
 This package exposes a low level API as well
-But for now - lets keep in undocumented. Use CLI.
+But for now - lets keep it undocumented. Use CLI.
 
 # See also
 - inspired by https://www.npmjs.com/package/yarn-unlock-indirect-dependencies
+- following [ncu](https://github.com/raineorshine/npm-check-updates) ideas
 
 # License
 MIT
