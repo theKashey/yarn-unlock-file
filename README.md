@@ -52,12 +52,13 @@ npx yarn-unlock-file all
 yarn # dont forget to regenerate lock file
 ```
 ## Unlock selective
-Unlocks given dependency(by glob pattern) and all dependents
+Unlocks dependencied of a given one (by glob pattern).
+But default it will not touch all project dependnecies. Behavior can be controlled via `--keep [all, dev, direct]` flag.
 ```bash
-# update all material-ui and deps
+# update all material-ui deps
 npx yarn-unlock-file matching "@material-ui/*"
-# any types
-npx yarn-unlock-file matching "@types/*"
+# and material-ui as well, because it is not a dev dep 
+npx yarn-unlock-file matching "@material-ui/*" --keep dev
 # many react libraries. This will update them to the allowed semver interval
 npx yarn-unlock-file matching "react-**"
 yarn # dont forget to regenerate lock file
