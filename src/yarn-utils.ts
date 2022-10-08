@@ -34,5 +34,15 @@ export function processLock(filter: (dep: string) => boolean) {
   console.log(`unlocking ${unlocked.size} packages`);
 
   const newLockString = updateLock(content, new Set(renewedPackages));
-  fs.writeFileSync(lockFileName, newLockString);
+
+  return {
+    packages,
+    unlocked,
+    content: newLockString,
+  };
 }
+
+export const saveLock = (content: string) => {
+  const lockFileName = getLockFileName();
+  fs.writeFileSync(lockFileName, content);
+};

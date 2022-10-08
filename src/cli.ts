@@ -28,6 +28,7 @@ program
   .command('all', 'keeps only direct package dependencies')
   .option('-o, --only <glob>', 'updates ONLY dependencies matching mask')
   .option('--min-level <number>', 'updates ONLY dependencies below given level')
+  .option('--dry-run', 'returns a report without updating lock file')
   .example('all # unlocks all indirect dependencies')
   .action((options) => runner('all', () => getAllDirectDependencies(), options));
 
@@ -35,6 +36,7 @@ program
   .command('dev', 'unlock only dependencies of dev dependencies')
   .option('-o, --only <glob>', 'updates ONLY dependencies matching mask')
   .option('--min-level <number>', 'updates ONLY dependencies below given level')
+  .option('--dry-run', 'returns a report without updating lock file')
   .example('dev # unlocks indirect dependencies of dev dependencies')
   .action((options) =>
     runner(
@@ -51,6 +53,7 @@ program
   .command('direct', 'unlock only dependencies of direct dependencies')
   .option('-o, --only <glob>', 'updates ONLY dependencies matching mask')
   .option('--min-level <number>', 'updates ONLY dependencies below given level')
+  .option('--dry-run', 'returns a report without updating lock file')
   .example('direct # unlocks indirect dependencies of direct dependencies')
   .action((options) =>
     runner(
@@ -67,6 +70,7 @@ program
   .command('matching <glob>', 'unlock dependencies from a parent matching given glob')
   .option('--keep [mode]', 'keep [all, dev, direct] dependencies', 'all')
   .option('--min-level <number>', 'updates ONLY dependencies below given level')
+  .option('--dry-run', 'returns a report without updating lock file')
   .example('matching react # unlocks indirect dependencies react')
   .example('matching material/* # unlocks indirect dependencies of any package starting from material-ui')
   .example('matching react-redux --min-level=2 # unlocks dependencies of dependencies react-redux')
