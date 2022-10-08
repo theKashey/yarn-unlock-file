@@ -4,18 +4,18 @@ const pushSet = (set: Set<string>, ...names: string[]): void => {
   names.forEach((name) => set.add(name));
 };
 
-const wipePass = (database: PackageDatabase, keep: Set<string>, lock: Set<string>, names: Set<string>) => {
+const wipePass = (database: PackageDatabase, alive: Set<string>, lock: Set<string>, names: Set<string>) => {
   for (const name of names) {
-    if (lock.has(name) || !keep.has(name)) {
+    if (lock.has(name) || !alive.has(name)) {
       continue;
     }
 
-    keep.delete(name);
+    alive.delete(name);
 
     const ent = database.get(name);
 
     if (ent) {
-      wipePass(database, keep, lock, ent.dependencies);
+      wipePass(database, alive, lock, ent.dependencies);
     }
   }
 };
@@ -35,7 +35,7 @@ export const reduceDependencies = async (
   database: PackageDatabase,
   allPackagesGetter: Promise<Dependencies> | Dependencies,
   rootPackagesGetter: Promise<Dependencies> | Dependencies,
-  keepOriginals?: boolean
+  options: { minLevel?: number; keepOriginals?: boolean } = {}
 ): Promise<Dependencies> => {
   const allPackages = await allPackagesGetter;
   const rootPackages = await rootPackagesGetter;
@@ -45,18 +45,16 @@ export const reduceDependencies = async (
 
   for (const packageName of allPackages) {
     // a package to be kept
-    if (!rootPackages.has(packageName) || keepOriginals) {
+    if (!rootPackages.has(packageName) || options.keepOriginals) {
       pushSet(lockedSet, packageName);
-      // also keeping it's deps? why so?
-      //, ...database.get(packageName)?.dependencies || [])
     }
   }
 
   // keep everything except found
 
   // keep all
-  const keepThose = new Set(database.keys());
-  wipePass(database, keepThose, lockedSet, rootPackages);
+  const packagesAlive = new Set(database.keys());
+  wipePass(database, packagesAlive, lockedSet, rootPackages);
 
-  return keepThose;
+  return packagesAlive;
 };

@@ -1,19 +1,27 @@
-import {getPackageDatabase} from "./package-utils";
-import {PackageDatabase} from "./types";
-import {processLock} from "./yarn-utils";
+import minimatch from 'minimatch';
 
-export const runner = async (mode: 'all' | 'dev' | 'direct', resolution: (packages: PackageDatabase) => Promise<Set<string>>, options: { update: string, only: string }) => {
-  const tryOnly = (dep: string) => dep.startsWith(options.only)
+import { getDependenciesFor } from './get-dependencies';
+import { getPackageLevels } from './levels';
+import { getPackageDatabase } from './package-utils';
+import { PackageDatabase } from './types';
+import { processLock } from './yarn-utils';
 
+export const runner = async (
+  mode: 'all' | 'dev' | 'direct',
+  resolution: (packages: PackageDatabase) => Promise<Set<string>>,
+  options: { update: string; only: string }
+) => {
   const packageDatabase = getPackageDatabase();
 
   const keepThose = await resolution(packageDatabase);
 
-  processLock(dep => {
-    if (options.only && !tryOnly(dep)) {
+  const matchOnly = options.only && ((dep: string) => minimatch(dep, options.only));
+
+  processLock((dep) => {
+    if (matchOnly && !matchOnly(dep)) {
       return true;
     }
 
     return keepThose.has(dep);
-  })
-}
+  });
+};

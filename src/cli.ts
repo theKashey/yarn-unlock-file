@@ -19,34 +19,46 @@ const program = sade('yarn-unlock-file', false);
 program.version(require('../package.json').version);
 
 program
-  .option('-o, --only <glob>', 'updates ONLY dependencies matching mask')
   .example('all # unlocks indirect dependencies of dependencies')
   .example('dev -u @material # unlocks all dependencies with a given prefix found across dev dependencies')
-  .example('direct -o @material # unlocks only indirect dependencies with a given prefix');
+  .example('direct -o @material # unlocks only indirect dependencies with a given prefix')
+  .example('all --min-level=2 # unlocks indirect dependencies of dependencies of dependencies');
 
 program
   .command('all', 'keeps only direct package dependencies')
+  .option('-o, --only <glob>', 'updates ONLY dependencies matching mask')
+  .option('--min-level <number>', 'updates ONLY dependencies below given level')
   .example('all # unlocks all indirect dependencies')
   .action((options) => runner('all', () => getAllDirectDependencies(), options));
 
 program
   .command('dev', 'unlock only dependencies of dev dependencies')
+  .option('-o, --only <glob>', 'updates ONLY dependencies matching mask')
+  .option('--min-level <number>', 'updates ONLY dependencies below given level')
   .example('dev # unlocks indirect dependencies of dev dependencies')
   .action((options) =>
     runner(
       'dev',
-      (database) => reduceDependencies(database, getAllDirectDependencies(), getDirectDevDependencies()),
+      (database) =>
+        reduceDependencies(database, getAllDirectDependencies(), getDirectDevDependencies(), {
+          minLevel: options.minLevel,
+        }),
       options
     )
   );
 
 program
   .command('direct', 'unlock only dependencies of direct dependencies')
+  .option('-o, --only <glob>', 'updates ONLY dependencies matching mask')
+  .option('--min-level <number>', 'updates ONLY dependencies below given level')
   .example('direct # unlocks indirect dependencies of direct dependencies')
   .action((options) =>
     runner(
       'direct',
-      (database) => reduceDependencies(database, getAllDirectDependencies(), getDirectDependencies()),
+      (database) =>
+        reduceDependencies(database, getAllDirectDependencies(), getDirectDependencies(), {
+          minLevel: options.minLevel,
+        }),
       options
     )
   );
@@ -54,8 +66,10 @@ program
 program
   .command('matching <glob>', 'unlock dependencies from a parent matching given glob')
   .option('--keep [mode]', 'keep [all, dev, direct] dependencies', 'all')
+  .option('--min-level <number>', 'updates ONLY dependencies below given level')
   .example('matching react # unlocks indirect dependencies react')
-  .example('matching react* # unlocks indirect dependencies of any package starting from react*')
+  .example('matching material/* # unlocks indirect dependencies of any package starting from material-ui')
+  .example('matching react-redux --min-level=2 # unlocks dependencies of dependencies react-redux')
   .action((glob, options) =>
     runner(
       'direct',
@@ -63,7 +77,10 @@ program
         const topDeps = Array.from(database.keys()).filter(minimatch.filter(glob));
         console.log('matched:', topDeps.join(', '));
 
-        return reduceDependencies(database, getDependenciesFor(options.keep), new Set(topDeps), true);
+        return reduceDependencies(database, getDependenciesFor(options.keep), new Set(topDeps), {
+          keepOriginals: true,
+          minLevel: options.minLevel,
+        });
       },
       options
     )
@@ -77,7 +94,7 @@ program
   .action(async (mode, { level }) => {
     const levels = await getPackageLevels(
       getPackageDatabase(),
-      ['all', 'dev', 'direct'].includes(mode) ? getDependenciesFor(mode) : new Set([mode])
+      ['all', 'dev', 'direct'].includes(mode) ? getDependenciesFor(mode) : new Set([])
     );
 
     if (level) {
