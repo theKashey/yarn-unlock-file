@@ -35,7 +35,7 @@ export const reduceDependencies = async (
   database: PackageDatabase,
   allPackagesGetter: Promise<Dependencies> | Dependencies,
   rootPackagesGetter: Promise<Dependencies> | Dependencies,
-  options: { minLevel?: number; keepOriginals?: boolean } = {}
+  options: { keepOriginals?: boolean } = {}
 ): Promise<Dependencies> => {
   const allPackages = await allPackagesGetter;
   const rootPackages = await rootPackagesGetter;
@@ -45,7 +45,7 @@ export const reduceDependencies = async (
 
   for (const packageName of allPackages) {
     // a package to be kept
-    if (!rootPackages.has(packageName) || options.keepOriginals) {
+    if (!rootPackages.has(packageName) && options.keepOriginals) {
       pushSet(lockedSet, packageName);
     }
   }

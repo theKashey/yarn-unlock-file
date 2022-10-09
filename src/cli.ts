@@ -27,7 +27,7 @@ program
 program
   .command('all', 'keeps only direct package dependencies')
   .option('-o, --only <glob>', 'updates ONLY dependencies matching mask')
-  .option('--min-level <number>', 'updates ONLY dependencies below given level')
+  .option('--min-level <number>', 'updates ONLY dependencies below given level', 1)
   .option('--dry-run', 'returns a report without updating lock file')
   .example('all # unlocks all indirect dependencies')
   .action((options) => runner('all', () => getAllDirectDependencies(), options));
@@ -35,16 +35,13 @@ program
 program
   .command('dev', 'unlock only dependencies of dev dependencies')
   .option('-o, --only <glob>', 'updates ONLY dependencies matching mask')
-  .option('--min-level <number>', 'updates ONLY dependencies below given level')
+  .option('--min-level <number>', 'updates ONLY dependencies below given level', 2)
   .option('--dry-run', 'returns a report without updating lock file')
   .example('dev # unlocks indirect dependencies of dev dependencies')
   .action((options) =>
     runner(
       'dev',
-      (database) =>
-        reduceDependencies(database, getAllDirectDependencies(), getDirectDevDependencies(), {
-          minLevel: options.minLevel,
-        }),
+      (database) => reduceDependencies(database, getAllDirectDependencies(), getDirectDevDependencies()),
       options
     )
   );
@@ -52,23 +49,20 @@ program
 program
   .command('direct', 'unlock only dependencies of direct dependencies')
   .option('-o, --only <glob>', 'updates ONLY dependencies matching mask')
-  .option('--min-level <number>', 'updates ONLY dependencies below given level')
+  .option('--min-level <number>', 'updates ONLY dependencies below given level', 2)
   .option('--dry-run', 'returns a report without updating lock file')
   .example('direct # unlocks indirect dependencies of direct dependencies')
   .action((options) =>
     runner(
       'direct',
-      (database) =>
-        reduceDependencies(database, getAllDirectDependencies(), getDirectDependencies(), {
-          minLevel: options.minLevel,
-        }),
+      (database) => reduceDependencies(database, getAllDirectDependencies(), getDirectDependencies()),
       options
     )
   );
 
 program
   .command('matching <glob>', 'unlock dependencies from a parent matching given glob')
-  .option('--keep [mode]', 'keep [all, dev, direct] dependencies', 'all')
+  // .option('--keep [mode]', 'keep [all, dev, direct] dependencies', 'all')
   .option('--min-level <number>', 'updates ONLY dependencies below given level')
   .option('--dry-run', 'returns a report without updating lock file')
   .example('matching react # unlocks indirect dependencies react')
@@ -79,11 +73,15 @@ program
       'direct',
       (database) => {
         const topDeps = Array.from(database.keys()).filter(minimatch.filter(glob));
-        console.log('matched:', topDeps.join(', '));
 
-        return reduceDependencies(database, getDependenciesFor(options.keep), new Set(topDeps), {
+        if (topDeps.length) {
+          console.log('matched:', topDeps.join(', '));
+        } else {
+          console.error('nothing matched', glob);
+        }
+
+        return reduceDependencies(database, getDependenciesFor(options.keep || 'all'), new Set(topDeps), {
           keepOriginals: true,
-          minLevel: options.minLevel,
         });
       },
       options

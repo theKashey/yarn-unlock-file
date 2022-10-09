@@ -10,13 +10,19 @@ import { processLock, saveLock } from './yarn-utils';
 export const runner = async (
   mode: 'all' | 'dev' | 'direct',
   resolution: (packages: PackageDatabase) => Promise<Set<string>>,
-  options: { update: string; only: string; dryRun?: boolean }
+  options: { update: string; only: string; 'dry-run'?: boolean; 'min-level'?: number }
 ) => {
   const packageDatabase = getPackageDatabase();
 
   const keepThose = await resolution(packageDatabase);
 
   const matchOnly = options.only && ((dep: string) => minimatch(dep, options.only));
+
+  const levels = await getPackageLevels(packageDatabase, getDependenciesFor('all'));
+
+  if (options['min-level']) {
+    levels.slice(0, options['min-level'] - 1).forEach((lvl) => lvl.forEach((dep) => keepThose.add(dep)));
+  }
 
   const unLockResult = processLock((dep) => {
     if (matchOnly && !matchOnly(dep)) {
@@ -26,12 +32,7 @@ export const runner = async (
     return keepThose.has(dep);
   });
 
-  if (options.dryRun) {
-    const levels = await getPackageLevels(
-      getPackageDatabase(),
-      ['all', 'dev', 'direct'].includes(mode) ? getDependenciesFor(mode) : new Set([])
-    );
-
+  if (options['dry-run']) {
     levels.forEach((level, index) =>
       console.log(
         index + 1,
