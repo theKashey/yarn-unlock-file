@@ -1,6 +1,6 @@
 # yarn-unlock file
 
-because there is _yarn.lock_ you want to _unlock_
+because there is _yarn.lock_ you want to _unlock_ - [Yarnlocking🔓 your dependencies](https://dev.to/thekashey/yarnlocking-your-dependencies-59n0)
 
 ---
 
